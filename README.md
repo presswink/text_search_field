@@ -8,7 +8,7 @@ a dependency search field plugins / library for flutter
 
 
 ```cmd
-text_search_field: ^0.0.4
+text_search_field: ^0.0.6
 ```
 
 2) call below given command
@@ -45,7 +45,7 @@ TextSearchField(
 
 ```
 ## demo
-<img src="./screenshots/sc_1.gif" width="360" height="756" alt="SearchField screenshot">
+<img src="https://github.com/presswink/text_search_field/blob/main/screenshots/sc_1.gif" width="360" height="756" alt="SearchField screenshot">
 
 
 ## contributor
