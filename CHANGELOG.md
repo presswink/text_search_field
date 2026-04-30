@@ -1,4 +1,8 @@
 
+## 0.0.6
+* converted from plugins to packages
+* some bug fixed
+
 ## 0.0.5
 * packages upgraded
 
