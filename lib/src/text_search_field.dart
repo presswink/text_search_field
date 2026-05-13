@@ -1,69 +1,141 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:text_search_field/src/Utils.dart';
 import 'package:text_search_field/src/text_search_field_controller.dart';
 import 'package:text_search_field/src/text_search_field_data_model.dart';
 import 'package:touch_ripple_effect/touch_ripple_effect.dart';
 import 'global_key.dart';
 
-/// this is a search for searching or filtering item from list, server or network
-/// [hint] is a string to show hint to user in textSearchField,
-/// using [inputBorder] you can change your textSearchField broder colors and style,
-/// with [searchFieldTextStyle] you can change input text style of textSearchField,
-/// and with [searchFieldHintTextStyle] you will be able to change hint text style,
-/// if you want to add default or initial value to textSearchField you will able to do it with [initialValue],
-/// you can add predefine list for filter in the search field using [filterItems],
-/// if you want to enable [fullTextSearch] on default filter you can do it by enable this,
-/// if you want to change keyboard input type or submit button then you will be able to do it by [textInputAction],
-/// if you want to handle filter or search from the server then you will be able to do it using [fetch],
-/// with [query] you can added custom filter code on predefined list,
-/// you can change suggestion item touch ripple colors with [rippleColor],
-/// whenever user will press submit button or they will touch suggestion item then [onSelected] method is going to trigger
-/// with [controller] you will be able to add dependency and able to handle textSearchField widget
-/// with [dependency] you can declare dependency on other textSearchField
-/// if searchFiled has dependency on other searchFiled then after fetching initial searchFiled this [dependencyFetch] method is going to trigger
-/// you can change text style with [suggestionTextStyle]
-/// you you want to style your suggestion item you can do with [suggestionItemDecoration]
-/// you can define height of suggestion item with [suggestionItemContainerHeight]
-/// you can add alignment of text with [suggestionTextAlignment]
-/// with [suggestionContainerHeight] you can define suggestion height
-/// with [caseSensitive] you can enable and disable case sensitive of default query filter
+/// A search field widget for searching or filtering items from a list, server, or network.
 ///
+/// Features include custom styling, remote searching with debouncing, dependency handling,
+/// and customizable suggestion overlays.
 class TextSearchField extends StatefulWidget {
+  /// Hint text to show in the search field.
   final String? hint;
-  final InputBorder? inputBorder;
-  final TextStyle? searchFieldTextStyle;
-  final TextStyle? searchFieldHintTextStyle;
+
+  /// Border decoration for the search field. Defaults to [OutlineInputBorder].
+  final InputBorder? border;
+
+  /// Input text style.
+  final TextStyle? style;
+
+  /// Hint text style.
+  final TextStyle? hintStyle;
+
+  /// Initial value to be displayed in the search field.
   final TextSearchFieldDataModel? initialValue;
+
+  /// A predefined list of items to filter locally.
   final List<TextSearchFieldDataModel>? filterItems;
+
+  /// Whether to perform a full-text search (contains) or prefix-only search.
   final bool fullTextSearch;
+
+  /// The keyboard submit button action.
   final TextInputAction? textInputAction;
-  final Future<List<TextSearchFieldDataModel>?> Function(String query)? fetch;
+
+  /// Callback for remote searching. Triggers as the user types (with debouncing).
+  final Future<List<TextSearchFieldDataModel>?> Function(String query)? onSearch;
+
+  /// Custom filtering logic for the [filterItems] list.
   final List<TextSearchFieldDataModel>? Function(
-      List<TextSearchFieldDataModel>? filterItems, String query)? query;
+      List<TextSearchFieldDataModel>? filterItems, String query)? onQuery;
+
+  /// Color of the ripple effect when a suggestion is tapped.
   final Color? rippleColor;
-  final Future<void> Function(
-          bool isPrimary, int index, TextSearchFieldDataModel selectedItem)?
+
+  /// Callback triggered when a suggestion is selected.
+  final Future<void> Function(int index, TextSearchFieldDataModel selectedItem)?
       onSelected;
+
+  /// Controller to handle the search field programmatically.
   final TextSearchFieldController? controller;
+
+  /// Dependency on another [TextSearchFieldController].
   final TextSearchFieldController? dependency;
+
+  /// Logic to fetch new items when the [dependency] value changes.
   final Future<List<TextSearchFieldDataModel>> Function(
       TextSearchFieldDataModel modelItem)? dependencyFetch;
+
+  /// Text style for items in the suggestion list.
   final TextStyle? suggestionTextStyle;
+
+  /// Decoration for the individual suggestion item container.
   final BoxDecoration? suggestionItemDecoration;
-  final double suggestionItemContainerHeight;
+
+  /// Height of each individual suggestion item.
+  final double itemHeight;
+
+  /// Alignment of text within suggestion items.
   final Alignment? suggestionTextAlignment;
-  final double suggestionContainerHeight;
+
+  /// Maximum height of the suggestion overlay box.
+  final double maxSuggestionsHeight;
+
+  /// Whether the default local filtering is case-sensitive.
   final bool caseSensitive;
-  // constructor
+
+  /// Background color of the suggestion overlay.
+  final Color? suggestionBackgroundColor;
+
+  /// Border radius of the suggestion overlay.
+  final BorderRadius? suggestionBorderRadius;
+
+  /// Shadow for the suggestion overlay.
+  final List<BoxShadow>? suggestionBoxShadow;
+
+  /// Widget to display when no items match the query.
+  final Widget? emptyWidget;
+
+  /// Widget to display while [onSearch] is fetching data.
+  final Widget? loadingWidget;
+
+  /// Offset to adjust the position of the suggestion overlay.
+  final Offset suggestionOffset;
+
+  /// The type of keyboard to display.
+  final TextInputType? keyboardType;
+
+  /// Duration to wait before triggering [onSearch] after user stops typing.
+  final Duration debounceDuration;
+
+  /// Whether the search field is enabled.
+  final bool enabled;
+
+  /// Whether to disable the search field until a value is selected in its [dependency].
+  final bool waitDependency;
+
+  /// A prefix widget (usually an icon) to show before the text in each suggestion item.
+  final Widget? suggestionPrefixIcon;
+
+  /// A prefix widget for the search field.
+  final Widget? prefixIcon;
+
+  /// A suffix widget for the search field.
+  final Widget? suffixIcon;
+
+  /// Background color for the search field.
+  final Color? fillColor;
+
+  /// Whether the search field should be filled.
+  final bool? filled;
+
+  /// Padding for the search field content.
+  final EdgeInsetsGeometry? contentPadding;
+
+  /// Whether to show the default search icon when [prefixIcon] is null.
+  final bool showSearchIcon;
+
   const TextSearchField({
     super.key,
     this.hint,
-    this.inputBorder,
-    this.searchFieldHintTextStyle,
+    this.border,
+    this.hintStyle,
     this.initialValue,
     this.filterItems,
-    this.fetch,
-    this.query,
+    this.onSearch,
+    this.onQuery,
     this.fullTextSearch = false,
     this.rippleColor,
     this.onSelected,
@@ -71,226 +143,363 @@ class TextSearchField extends StatefulWidget {
     this.dependency,
     this.textInputAction,
     this.dependencyFetch,
-    this.searchFieldTextStyle,
+    this.style,
     this.suggestionTextStyle,
     this.suggestionItemDecoration,
-    this.suggestionItemContainerHeight = 50,
+    this.itemHeight = 50,
     this.suggestionTextAlignment,
-    this.suggestionContainerHeight = 250,
-    this.caseSensitive = false
+    this.maxSuggestionsHeight = 250,
+    this.caseSensitive = false,
+    this.suggestionBackgroundColor,
+    this.suggestionBorderRadius,
+    this.suggestionBoxShadow,
+    this.emptyWidget,
+    this.loadingWidget,
+    this.suggestionOffset = Offset.zero,
+    this.keyboardType,
+    this.debounceDuration = const Duration(milliseconds: 300),
+    this.enabled = true,
+    this.waitDependency = false,
+    this.suggestionPrefixIcon,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.fillColor,
+    this.filled,
+    this.contentPadding,
+    this.showSearchIcon = true,
   });
 
   @override
-  State<TextSearchField> createState() => _SearchFieldState();
+  State<TextSearchField> createState() => _TextSearchFieldState();
 }
 
-class _SearchFieldState extends State<TextSearchField> {
+class _TextSearchFieldState extends State<TextSearchField> {
   late FocusNode _focusNode;
-  bool isLoading = false;
-  List<TextSearchFieldDataModel>? items;
-  TextSearchFieldDataModel? currentValue;
-  bool isSelected = false;
+  bool _isLoading = false;
+  bool _isDependencySelected = false;
+  List<TextSearchFieldDataModel>? _items;
 
   final OverlayPortalController _overlayPortalController =
       OverlayPortalController();
-  final _controller = TextEditingController();
+  final _textController = TextEditingController();
   final _globalKey = GlobalKey();
+  final _scrollController = ScrollController();
+
+  Timer? _debounce;
+  int _searchSessionId = 0;
 
   @override
   void initState() {
+    super.initState();
     _focusNode = FocusNode();
-    // setting up initial value if there any
+    _items = widget.filterItems;
+
     if (widget.initialValue != null) {
+      _isDependencySelected = true;
       setCurrentValue(widget.initialValue!);
     }
 
-    _focusNode.addListener(() {
-      // showing and hiding search suggestion list
-      if (_focusNode.hasFocus) {
-        _overlayPortalController.show();
-      } else {
-        _overlayPortalController.hide();
-      }
-    });
-    items = widget.filterItems;
+    _focusNode.addListener(_onFocusChanged);
+    _setupDependencyListener();
+  }
+
+  @override
+  void didUpdateWidget(covariant TextSearchField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.dependency != widget.dependency) {
+      _setupDependencyListener();
+    }
+    if (oldWidget.filterItems != widget.filterItems && _textController.text.isEmpty) {
+      _items = widget.filterItems;
+    }
+  }
+
+  void _onFocusChanged() {
+    if (_focusNode.hasFocus) {
+      _overlayPortalController.show();
+    } else {
+      _overlayPortalController.hide();
+    }
+  }
+
+  void _setupDependencyListener() {
     if (widget.dependency != null) {
       widget.dependency!.selected = (TextSearchFieldDataModel item) async {
-        // enabling loader and search field
+        if (!mounted) return;
         setState(() {
-          isLoading = true;
-          isSelected = true;
+          _isDependencySelected = true;
+          _isLoading = true;
         });
-        // calling dependency fetch method
-        if (widget.dependencyFetch != null) {
-          items = await widget.dependencyFetch!(item);
+
+        try {
+          if (widget.dependencyFetch != null) {
+            final newItems = await widget.dependencyFetch!(item);
+            if (mounted) {
+              setState(() {
+                _items = newItems;
+              });
+            }
+          }
+        } catch (e) {
+          debugPrint("TextSearchField: Error in dependencyFetch: $e");
+        } finally {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
         }
-        // disabling loader after content fetch
-        setState(() {
-          isLoading = false;
-        });
       };
     }
-    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _focusNode.removeListener(_onFocusChanged);
+    _focusNode.dispose();
+    _textController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void setCurrentValue(TextSearchFieldDataModel value) {
-    currentValue = value;
-    _controller.text = value.value!;
-    if (widget.controller != null) {
-      if (widget.controller!.selected != null) {
-        widget.controller!.selected!(value);
+    _textController.text = value.value;
+    widget.controller?.selected?.call(value);
+  }
+
+  Future<void> _onSearchChanged(String value) async {
+    _debounce?.cancel();
+    _debounce = Timer(widget.debounceDuration, () async {
+      final sessionId = ++_searchSessionId;
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        List<TextSearchFieldDataModel>? results;
+
+        if (widget.onSearch != null) {
+          results = await widget.onSearch!(value);
+        } else if (widget.onQuery != null) {
+          results = widget.onQuery!(widget.filterItems, value);
+        } else {
+          if (value.isEmpty) {
+            results = widget.filterItems;
+          } else {
+            results = widget.filterItems?.where((element) {
+              final itemValue = element.value;
+              final val = widget.caseSensitive ? itemValue : itemValue.toLowerCase();
+              final search = widget.caseSensitive ? value : value.toLowerCase();
+
+              return widget.fullTextSearch ? val.contains(search) : val.startsWith(search);
+            }).toList();
+          }
+        }
+
+        // Only update if this is still the most recent search session
+        if (mounted && sessionId == _searchSessionId) {
+          setState(() {
+            _items = results;
+          });
+        }
+      } catch (e) {
+        debugPrint("TextSearchField: Error during search: $e");
+      } finally {
+        if (mounted && sessionId == _searchSessionId) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
-    }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return OverlayPortal(
-      overlayChildBuilder: (BuildContext context) => Positioned(
-        width: _globalKey.globalPaintBounds!.width,
-        top: _globalKey.globalPaintBounds!.bottom,
-        left: _globalKey.globalPaintBounds!.left,
-        child: Container(
-          alignment: Alignment.center,
-          height: widget.suggestionContainerHeight,
-          decoration: const BoxDecoration(color: Colors.white, boxShadow: [
-            BoxShadow(color: Colors.grey, blurRadius: 15, offset: Offset(2, 3))
-          ]),
-          child: isLoading
-              ? const CircularProgressIndicator()
-              : ListView.builder(
-                  itemCount: items != null ? items!.length : 0,
-                  scrollDirection: Axis.vertical,
-                  itemBuilder: (BuildContext context, int index) {
-                    return TouchRippleEffect(
-                      rippleColor: widget.rippleColor ?? Colors.grey,
-                      onTap: () {
-                        _focusNode.unfocus();
-                        setCurrentValue(items![index]);
-                        if (widget.onSelected != null) {
-                          widget.onSelected!(
-                              index == 0 && _controller.value.text.isNotEmpty ? true : false, index, items![index]);
-                        }
-                      },
-                      child: Container(
-                        key: Key(items![index].key!),
-                        alignment:
-                            widget.suggestionTextAlignment ?? Alignment.center,
-                        height: widget.suggestionItemContainerHeight,
-                        decoration: widget.suggestionItemDecoration ??
-                            const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.rectangle,
-                                border: Border(
-                                    bottom: BorderSide(
-                                        color: Colors.grey, width: 0.5))),
-                        child: Text(
-                          items![index].value!,
-                          style: widget.suggestionTextStyle ??
-                              const TextStyle(
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18),
-                          textDirection: TextDirection.ltr,
-                        ),
-                      ),
-                    );
-                  }),
-        ),
-      ),
       controller: _overlayPortalController,
+      overlayChildBuilder: _buildOverlayContent,
       child: TextField(
         key: _globalKey,
-        controller: _controller,
-        enabled: widget.dependency == null ? true : isSelected,
-        style: widget.searchFieldTextStyle ??
-            const TextStyle(
-                color: Colors.black, fontSize: 18, fontWeight: FontWeight.w400),
+        controller: _textController,
         focusNode: _focusNode,
-        textInputAction: widget.textInputAction ?? TextInputAction.go,
-        keyboardType: TextInputType.text,
-        maxLines: 1,
-        onEditingComplete: () {
-          // on keyboard go button press we are treating this request as a initial / primary item selected in the list
-          setCurrentValue(TextSearchFieldDataModel(
-              key: Utils.buildKey(_controller.value.text),
-              value: _controller.value.text));
-          // triggering onSelected function
-          if (widget.onSelected != null) {
-            widget.onSelected!(_controller.value.text.isNotEmpty, 0, currentValue!);
-          }
-          // removing focus from search field
-          _focusNode.unfocus();
-        },
-        onChanged: (String value) async {
-          // enabling loader
-          setState(() {
-            isLoading = true;
-          });
-
-          if (widget.query != null) {
-            // if user wants to add custom filter on query item then this statement is going to trigger
-            items = widget.query!(widget.filterItems, value);
-          } else if (widget.fetch != null) {
-            // if user wants to add server / network query filter then this statement is going to trigger
-            final res = await widget.fetch!(value);
-            if (res!.isNotEmpty) {
-              // if there is an item in the response then trigger this
-              items = [
-                TextSearchFieldDataModel(
-                    key: Utils.buildKey(value), value: value),
-                ...res
-              ];
-            } else {
-              // if there is no items in the response then add on default item
-              items = [
-                TextSearchFieldDataModel(
-                    key: Utils.buildKey(value), value: value)
-              ];
-            }
-          } else {
-            // if none of the function has defined then it's going to trigger as a default query filter function
-            if (value.isNotEmpty) {
-              String pattern = r"\b" + value + r"\b";
-              RegExp wordRegex = RegExp(pattern, caseSensitive: widget.caseSensitive);
-              final lists = widget.filterItems
-                  ?.where((element) => element.value!
-                      .contains(widget.fullTextSearch ? wordRegex : RegExp(value, caseSensitive: widget.caseSensitive)))
-                  .toList();
-              items = [
-                TextSearchFieldDataModel(
-                    key: Utils.buildKey(value), value: value),
-                ...?lists
-              ];
-            } else {
-              // if query string is empty then add default filter list in the request
-              items = widget.filterItems;
-            }
-          }
-          // disabling loader
-          setState(() {
-            isLoading = false;
-          });
-        },
-        onTap: () {
-          // this function is going to trigger on select search field
-          _focusNode.requestFocus();
-        },
+        enabled: widget.enabled &&
+            (!widget.waitDependency ||
+                widget.dependency == null ||
+                _isDependencySelected),
+        style: widget.style ??
+            const TextStyle(
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+        textInputAction: widget.textInputAction,
+        keyboardType: widget.keyboardType,
         decoration: InputDecoration(
-          border: widget.inputBorder ??
-              const OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color: Colors.black87,
-                      width: 1.0,
-                      style: BorderStyle.solid)),
-          hintText: widget.hint ?? "please type your query",
-          hintStyle: widget.searchFieldHintTextStyle ??
-              const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400),
+          hintText: widget.hint,
+          hintStyle: widget.hintStyle ??
+              TextStyle(
+                color: Colors.grey.withValues(alpha: 0.6),
+                fontSize: 16,
+              ),
+          prefixIcon: widget.prefixIcon ??
+              (widget.showSearchIcon
+                  ? const Icon(Icons.search, color: Colors.grey, size: 22)
+                  : null),
+          suffixIcon: widget.suffixIcon ??
+              (_textController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear, color: Colors.grey, size: 20),
+                      onPressed: () {
+                        _textController.clear();
+                        _onSearchChanged("");
+                      },
+                    )
+                  : null),
+          filled: widget.filled ?? true,
+          fillColor: widget.fillColor ?? Colors.grey.withValues(alpha: 0.1),
+          contentPadding: widget.contentPadding ??
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          border: widget.border ??
+              OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+          enabledBorder: widget.border ??
+              OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+          focusedBorder: widget.border ??
+              OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.5),
+                  width: 1.5,
+                ),
+              ),
         ),
-        textDirection: TextDirection.ltr,
+        onChanged: _onSearchChanged,
+      ),
+    );
+  }
+
+  Widget _buildOverlayContent(BuildContext context) {
+    final borderRadius = widget.suggestionBorderRadius ??
+        const BorderRadius.only(
+          bottomLeft: Radius.circular(15),
+          bottomRight: Radius.circular(15),
+        );
+
+    final bounds = _globalKey.globalPaintBounds;
+    if (bounds == null) return const SizedBox.shrink();
+
+    return Positioned(
+      width: bounds.width,
+      top: bounds.bottom + widget.suggestionOffset.dy,
+      left: bounds.left + widget.suggestionOffset.dx,
+      child: Container(
+        constraints: BoxConstraints(maxHeight: widget.maxSuggestionsHeight),
+        decoration: BoxDecoration(
+          color: widget.suggestionBackgroundColor ?? Colors.white,
+          borderRadius: borderRadius,
+          boxShadow: widget.suggestionBoxShadow ??
+              [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  spreadRadius: 2,
+                  offset: const Offset(0, 10),
+                )
+              ],
+        ),
+        child: ClipRRect(
+          borderRadius: borderRadius,
+          child: _buildSuggestionList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSuggestionList() {
+    if (_isLoading) {
+      return widget.loadingWidget ??
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+    }
+
+    if (_items == null || _items!.isEmpty) {
+      return widget.emptyWidget ?? const SizedBox.shrink();
+    }
+
+    return Scrollbar(
+      controller: _scrollController,
+      thumbVisibility: true,
+      child: ListView.builder(
+        padding: EdgeInsets.zero,
+        shrinkWrap: true,
+        controller: _scrollController,
+        itemCount: _items!.length,
+        itemBuilder: (context, index) {
+          final item = _items![index];
+          return _buildSuggestionItem(item, index);
+        },
+      ),
+    );
+  }
+
+  Widget _buildSuggestionItem(TextSearchFieldDataModel item, int index) {
+    return TouchRippleEffect(
+      rippleColor: widget.rippleColor ?? Colors.grey.withValues(alpha: 0.1),
+      onTap: () {
+        _focusNode.unfocus();
+        setCurrentValue(item);
+        widget.onSelected?.call(
+          index,
+          item,
+        );
+      },
+      child: Container(
+        key: ValueKey(item.key),
+        alignment: widget.suggestionTextAlignment ?? Alignment.centerLeft,
+        height: widget.itemHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: widget.suggestionItemDecoration ??
+            BoxDecoration(
+              color: widget.suggestionBackgroundColor ?? Colors.white,
+              border: Border(
+                bottom: BorderSide(
+                  color: Colors.grey.withValues(alpha: 0.1),
+                  width: 1,
+                ),
+              ),
+            ),
+        child: Row(
+          children: [
+            if (widget.suggestionPrefixIcon != null) ...[
+              widget.suggestionPrefixIcon!,
+              const SizedBox(width: 12),
+            ],
+            Expanded(
+              child: Text(
+                item.value,
+                style: widget.suggestionTextStyle ??
+                    const TextStyle(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                    ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
