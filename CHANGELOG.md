@@ -1,29 +1,14 @@
+## 1.1.0
+* **Feature**: Added support for many-to-one dependency. Multiple `TextSearchField` widgets can now depend on a single `TextSearchFieldController`.
+* **Behavior Change**: When a dependency's selection changes, the dependent search field is now automatically cleared.
+
 ## 1.0.0
-* **Breaking Changes**: Refactored parameter names for Flutter idiomatic consistency:
-    * `inputBorder` -> `border`
-    * `searchFieldTextStyle` -> `style`
-    * `searchFieldHintTextStyle` -> `hintStyle`
-    * `suggestionItemContainerHeight` -> `itemHeight`
-    * `suggestionContainerHeight` -> `maxSuggestionsHeight`
-    * `fetch` -> `onSearch`
-    * `query` -> `onQuery`
+* **Refactor**: Restored and improved `TextSearchFieldDataModel` with `key`, `value`, and `data` fields.
+* **Modernized UI**: Finalized the modern default look for both the `TextField` and the suggestion dropdown.
+* **Robustness**: Complete test coverage and bug fixes for async search race conditions and positioning.
+* **Breaking Changes**: Refactored parameter names for Flutter idiomatic consistency (see README Migration Guide).
 * **Breaking Changes**: Removed `isPrimary` parameter from `onSelected` callback.
-* **UI Modernization**:
-    * New default rounded and filled design for `TextField`.
-    * Modernized suggestion list with subtle dividers and better typography.
-    * Integrated a default search icon and a clear-all button.
-* **New Features**:
-    * Added search debouncing with configurable `debounceDuration`.
-    * Added `enabled` and `waitDependency` properties for better field control.
-    * Added `loadingWidget` and `emptyWidget` for custom search states.
-    * Extensive suggestion overlay styling: `suggestionBackgroundColor`, `suggestionBorderRadius`, `suggestionBoxShadow`, `suggestionOffset`.
-    * Added `suggestionPrefixIcon` to show icons in the suggestion list.
-    * Added `keyboardType`, `fillColor`, `filled`, and `contentPadding` for text field customization.
-* **Fixes & Improvements**:
-    * Resolved race conditions in async searches using session IDs.
-    * Fixed suggestion overlay positioning and white-space issues.
-    * Added comprehensive test suite.
-    * Improved documentation and examples.
+* **New Features**: Added search debouncing, custom loading/empty widgets, and extensive styling options.
 
 ## 0.0.6
 * converted from plugins to packages

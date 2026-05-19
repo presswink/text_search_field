@@ -7,24 +7,31 @@ void main() {
       final controller = TextSearchFieldController();
       expect(controller.text, "");
       expect(controller.isLoading, false);
-      expect(controller.selected, isNull);
     });
 
-    test("should initialize with provided values", () {
+    test("should support multiple listeners", () {
+      final controller = TextSearchFieldController();
+      int callCount1 = 0;
+      int callCount2 = 0;
+      
       final model = TextSearchFieldDataModel(key: "1", value: "A");
-      TextSearchFieldDataModel? captured;
       
-      final controller = TextSearchFieldController(
-        text: "test",
-        isLoading: true,
-        selected: (m) => captured = m,
-      );
+      void listener1(TextSearchFieldDataModel m) => callCount1++;
+      void listener2(TextSearchFieldDataModel m) => callCount2++;
       
-      expect(controller.text, "test");
-      expect(controller.isLoading, true);
+      controller.addListener(listener1);
+      controller.addListener(listener2);
       
-      controller.selected?.call(model);
-      expect(captured, model);
+      controller.select(model);
+      
+      expect(callCount1, 1);
+      expect(callCount2, 1);
+      
+      controller.removeListener(listener1);
+      controller.select(model);
+      
+      expect(callCount1, 1);
+      expect(callCount2, 2);
     });
   });
 }
