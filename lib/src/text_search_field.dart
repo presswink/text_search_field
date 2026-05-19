@@ -207,9 +207,11 @@ class _TextSearchFieldState extends State<TextSearchField> {
   void didUpdateWidget(covariant TextSearchField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.dependency != widget.dependency) {
+      oldWidget.dependency?.removeListener(_onDependencySelected);
       _setupDependencyListener();
     }
-    if (oldWidget.filterItems != widget.filterItems && _textController.text.isEmpty) {
+    if (oldWidget.filterItems != widget.filterItems &&
+        _textController.text.isEmpty) {
       _items = widget.filterItems;
     }
   }
@@ -222,41 +224,46 @@ class _TextSearchFieldState extends State<TextSearchField> {
     }
   }
 
-  void _setupDependencyListener() {
-    if (widget.dependency != null) {
-      widget.dependency!.selected = (TextSearchFieldDataModel item) async {
-        if (!mounted) return;
-        setState(() {
-          _isDependencySelected = true;
-          _isLoading = true;
-        });
+  void _onDependencySelected(TextSearchFieldDataModel item) async {
+    if (!mounted) return;
 
-        try {
-          if (widget.dependencyFetch != null) {
-            final newItems = await widget.dependencyFetch!(item);
-            if (mounted) {
-              setState(() {
-                _items = newItems;
-              });
-            }
-          }
-        } catch (e) {
-          debugPrint("TextSearchField: Error in dependencyFetch: $e");
-        } finally {
-          if (mounted) {
-            setState(() {
-              _isLoading = false;
-            });
-          }
+    // Clear current selection and text when dependency changes
+    setState(() {
+      _textController.clear();
+      _items = [];
+      _isDependencySelected = true;
+      _isLoading = true;
+    });
+
+    try {
+      if (widget.dependencyFetch != null) {
+        final newItems = await widget.dependencyFetch!(item);
+        if (mounted) {
+          setState(() {
+            _items = newItems;
+          });
         }
-      };
+      }
+    } catch (e) {
+      debugPrint("TextSearchField: Error in dependencyFetch: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
+  }
+
+  void _setupDependencyListener() {
+    widget.dependency?.addListener(_onDependencySelected);
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
     _focusNode.removeListener(_onFocusChanged);
+    widget.dependency?.removeListener(_onDependencySelected);
     _focusNode.dispose();
     _textController.dispose();
     _scrollController.dispose();
@@ -265,7 +272,7 @@ class _TextSearchFieldState extends State<TextSearchField> {
 
   void setCurrentValue(TextSearchFieldDataModel value) {
     _textController.text = value.value;
-    widget.controller?.selected?.call(value);
+    widget.controller?.select(value);
   }
 
   Future<void> _onSearchChanged(String value) async {
@@ -290,10 +297,13 @@ class _TextSearchFieldState extends State<TextSearchField> {
           } else {
             results = widget.filterItems?.where((element) {
               final itemValue = element.value;
-              final val = widget.caseSensitive ? itemValue : itemValue.toLowerCase();
+              final val =
+                  widget.caseSensitive ? itemValue : itemValue.toLowerCase();
               final search = widget.caseSensitive ? value : value.toLowerCase();
 
-              return widget.fullTextSearch ? val.contains(search) : val.startsWith(search);
+              return widget.fullTextSearch
+                  ? val.contains(search)
+                  : val.startsWith(search);
             }).toList();
           }
         }
@@ -350,7 +360,8 @@ class _TextSearchFieldState extends State<TextSearchField> {
           suffixIcon: widget.suffixIcon ??
               (_textController.text.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear, color: Colors.grey, size: 20),
+                      icon:
+                          const Icon(Icons.clear, color: Colors.grey, size: 20),
                       onPressed: () {
                         _textController.clear();
                         _onSearchChanged("");

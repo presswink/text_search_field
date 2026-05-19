@@ -185,7 +185,7 @@ void main() {
       TextField textField = tester.widget<TextField>(find.byType(TextField));
       expect(textField.enabled, isFalse);
 
-      depController.selected?.call(TextSearchFieldDataModel(key: "1", value: "Selected"));
+      depController.select(TextSearchFieldDataModel(key: "1", value: "Selected"));
       await tester.pump(); // Start async work
 
       // We need to wait for the dependency fetch or just the state update
