@@ -2,13 +2,22 @@
 
 a dependency search text field package for flutter
 
+## Support Platforms
+
+- Android
+- iOS
+- Web
+- macOS
+- Windows
+- Linux
+
 ## Getting Started
 
 1) add below line in your `pubspec.yaml`
 
 
 ```cmd
-text_search_field: ^0.0.6
+text_search_field: ^1.1.1
 ```
 
 2) call below given command
@@ -19,6 +28,8 @@ flutter pub get
 
 ```
 
+
+For a complete, interactive example, check out the [example/lib/main.dart](https://github.com/presswink/text_search_field/blob/main/example/lib/main.dart) file.
 
 ## Example
 
