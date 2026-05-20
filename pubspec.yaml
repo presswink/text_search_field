@@ -1,11 +1,11 @@
 name: text_search_field
 description: "A dependency text search field widget for flutter which is going to help you with implementation of search filed with suggestions"
-version: 1.1.0
+version: 1.1.1
 homepage: https://github.com/presswink/text_search_field
 
 environment:
-  sdk: ^3.11.5
-  flutter: ">=1.17.0"
+  sdk: ^3.5.0
+  flutter: ">=3.24.0"
 
 dependencies:
   flutter:
@@ -15,7 +15,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

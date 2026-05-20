@@ -1,3 +1,7 @@
+## 1.1.1
+* **Maintenance**: Updated environment constraints (Flutter >= 3.24.0, SDK >= 3.5.0) to support modern `Color` APIs.
+* **Documentation**: Updated README with "Support Platforms" section.
+
 ## 1.1.0
 * **Feature**: Added support for many-to-one dependency. Multiple `TextSearchField` widgets can now depend on a single `TextSearchFieldController`.
 * **Behavior Change**: When a dependency's selection changes, the dependent search field is now automatically cleared.
