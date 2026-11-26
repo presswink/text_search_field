@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:text_search_field/src/text_search_field_controller.dart';
 import 'package:text_search_field/src/text_search_field_data_model.dart';
 import 'package:touch_ripple_effect/touch_ripple_effect.dart';

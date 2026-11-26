@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:text_search_field/text_search_field.dart';
 
 void main() {
@@ -34,9 +34,12 @@ class _SearchExampleScreenState extends State<SearchExampleScreen> {
 
   // Mock data
   final List<TextSearchFieldDataModel> _countries = [
-    TextSearchFieldDataModel(key: 'in', value: 'India'),
-    TextSearchFieldDataModel(key: 'us', value: 'USA'),
-    TextSearchFieldDataModel(key: 'ca', value: 'Canada'),
+    TextSearchFieldDataModel(key: 'in', value: 'C&W, mechanical (Technician)'),
+    TextSearchFieldDataModel(key: 'us', value: 'abc, mechanical (Technician)'),
+    TextSearchFieldDataModel(key: 'ca', value: 'C&W, mechanical JE (Junior Engineer)'),
+    TextSearchFieldDataModel(key: 'us', value: 'adsa, mechanical (Technician)'),
+    TextSearchFieldDataModel(key: 'ca', value: 'Works, mechanical JE (Junior Engineer)'),
+    TextSearchFieldDataModel(key: 'ca', value: 'Bridge, mechanical JE (Junior Engineer)'),
   ];
 
   final Map<String, List<TextSearchFieldDataModel>> _citiesByCountry = {
